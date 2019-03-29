@@ -60,7 +60,6 @@ public interface MudrodConstants {
 
   public static final String HTTP_LOG = "http";
   
-  // ***
   public static final String ACCESS_PREFIX = "mudrod.access.prefix";
 
   public static final String ACCESS_LOG = "access";

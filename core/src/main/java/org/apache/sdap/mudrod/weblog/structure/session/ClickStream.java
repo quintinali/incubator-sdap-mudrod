@@ -28,12 +28,16 @@ public class ClickStream implements Serializable {
   private static final long serialVersionUID = 1L;
   // keywords: query words related to the click behaviour
   private String keywords;
+  
   // viewDataset: the dataset name user viewed
   private String viewDataset;
+  
   // downloadDataset: the dataset name user downloaded
   private String downloadDataset;
+  
   // sessionID: session ID
   private String sessionID;
+  
   // type: session type name
   private String type;
 

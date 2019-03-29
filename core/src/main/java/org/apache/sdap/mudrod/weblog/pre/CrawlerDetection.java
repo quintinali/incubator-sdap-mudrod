@@ -106,7 +106,7 @@ public class CrawlerDetection extends LogAbstract {
 	public boolean checkKnownCrawler(String agent) {
 		String[] crawlers = props.getProperty(MudrodConstants.BLACK_LIST_AGENT).split(",");
 		for (int i = 0; i < crawlers.length; i++) {
-			if (agent.toLowerCase().contains(crawlers[i].trim()))
+			if (agent.toLowerCase().contains(crawlers[i].trim()) || agent.equals("-"))
 				return true;
 		}
 		return false;
@@ -143,31 +143,39 @@ public class CrawlerDetection extends LogAbstract {
 		Pattern pattern = Pattern.compile("get (.*?) http/*");
 		Matcher matcher;
 
-		BoolQueryBuilder filterSearch = new BoolQueryBuilder();
-		filterSearch.must(QueryBuilders.termQuery("IP", user));
+		BoolQueryBuilder AccessFilterSearch = new BoolQueryBuilder();
+		AccessFilterSearch.must(QueryBuilders.termQuery("IP", user));
+		
+		AccessFilterSearch.must(QueryBuilders.termQuery("LogType", MudrodConstants.ACCESS_LOG)); 
 
 		AggregationBuilder aggregation = AggregationBuilders.dateHistogram("by_minute").field("Time")
 				.dateHistogramInterval(DateHistogramInterval.MINUTE).order(Order.COUNT_DESC);
 		SearchResponse checkRobot = es.getClient().prepareSearch(logIndex).setTypes(httpType, ftpType)
-				.setQuery(filterSearch).setSize(0).addAggregation(aggregation).execute().actionGet();
+				.setQuery(AccessFilterSearch).setSize(0).addAggregation(aggregation).execute().actionGet();
 
 		Histogram agg = checkRobot.getAggregations().get("by_minute");
 
 		List<? extends Histogram.Bucket> botList = agg.getBuckets();
+		
+		// if one user doesn't have access log, return 0 
+		if (botList.isEmpty())
+		  return 0;
 		long maxCount = botList.get(0).getDocCount();
 		if (maxCount >= rate) {
 			return 0;
 		} else {
 			DateTime dt1 = null;
 			int toLast = 0;
+			
+		  BoolQueryBuilder filterSearch = new BoolQueryBuilder();
+		  filterSearch.must(QueryBuilders.termQuery("IP", user));
+		  
 			SearchResponse scrollResp = es.getClient().prepareSearch(logIndex).setTypes(httpType, ftpType)
 					.setScroll(new TimeValue(60000)).setQuery(filterSearch).setSize(100).execute().actionGet();
 			while (true) {
 				for (SearchHit hit : scrollResp.getHits().getHits()) {
 					Map<String, Object> result = hit.getSource();
 					String logtype = (String) result.get("LogType");
-
-					// ***
 
 					if (logtype.equals(MudrodConstants.ACCESS_LOG) || logtype.equals(MudrodConstants.THREDDS_LOG)
 							|| logtype.equals(MudrodConstants.OPENDAP_LOG)) {

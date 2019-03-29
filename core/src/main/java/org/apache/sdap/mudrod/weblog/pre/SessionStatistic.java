@@ -158,6 +158,8 @@ public class SessionStatistic extends LogAbstract {
     float requestRate = 0;
 
     int sessionCount = 0;
+    
+    // http or https
     Pattern pattern = Pattern.compile("get (.*?) http/*");
 
     StatsAggregationBuilder statsAgg = AggregationBuilders.stats("Stats").field("Time");
@@ -211,7 +213,35 @@ public class SessionStatistic extends LogAbstract {
         while (matcher.find()) {
           request = matcher.group(1);
         }
-
+        
+        /*if (MudrodConstants.THREDDS_LOG.equals(child.getKey())) {
+        if (childRequest.contains("/dodsC")) {
+          if (childRequest.contains(".ncml.dods?") || child.getRequest().contains(".nc.dods?")) {
+            download = true;
+            break;
+          }
+        }
+        if (childRequest.contains("/fileserver")) {
+            download = true;
+            break;
+        }
+        if (childRequest.contains("/ncss")) {
+          if (childRequest.contains(".ncml?") || childRequest.contains(".nc?")) {
+            download = true;
+            break;
+          }
+        }
+      } else if (MudrodConstants.OPENDAP_LOG.equals(child.getKey())) {
+        if (".nc".equals(childRequest.subSequence(childRequest.length() - 3, childRequest.length()))) {
+          download = true;
+          break;
+        }
+        if (childRequest.contains(".nc?") || childRequest.contains(".nc4?") || childRequest.contains(".dods?")) {
+          download = true;
+          break;
+        }
+      } */
+        
         String datasetlist = props.getProperty(MudrodConstants.SEARCH_MARKER);
         String dataset = props.getProperty(MudrodConstants.VIEW_MARKER);
         if (request.contains(datasetlist)) {

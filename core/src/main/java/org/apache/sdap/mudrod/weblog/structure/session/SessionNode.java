@@ -42,11 +42,14 @@ public class SessionNode {
   protected String referer;
   // seq: sequence of this node
   protected int seq;
+  
   // key: type of this node extracted from url, including three types -
   // dataset,datasetlist,ftp
   protected String key;
+  
   // logType: log types of this node, including two types - po.dacc, ftp
   protected String logType;
+  
   // search: query extracted from this node
   protected String search;
   // filter: filter facets extracted from this node
@@ -332,10 +335,13 @@ public class SessionNode {
    */
   public void parseDatasetId(String request) {
     try {
+      // when does request need decoding? why need decoding?
       request = URLDecoder.decode(request, "UTF-8");
     } catch (UnsupportedEncodingException e) {
       e.printStackTrace();
     }
+    
+    // what to do if not viewing files? 
     String[] twoparts = request.split("[?]");
     String[] parts = twoparts[0].split("/");
     if (parts.length <= 2) {

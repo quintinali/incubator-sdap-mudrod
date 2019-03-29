@@ -104,23 +104,25 @@ public class WeblogDiscoveryEngine extends DiscoveryEngineAbstract {
       props.put(MudrodConstants.TIME_SUFFIX, timeSuffix);
       startTime = System.currentTimeMillis();
       LOG.info("Processing logs dated {}", anInputList);
-
+      
+      
       DiscoveryStepAbstract im = new ImportLogFile(this.props, this.es, this.spark);
       im.execute();
-
+      
       DiscoveryStepAbstract cd = new CrawlerDetection(this.props, this.es, this.spark);
       cd.execute();
-
+      
       SessionGenerator sg = new SessionGenerator(this.props, this.es, this.spark);
       sg.execute();
       
       /*
       DiscoveryStepAbstract ss = new SessionStatistic(this.props, this.es, this.spark);
       ss.execute();
-
+      
+      
       DiscoveryStepAbstract rr = new RemoveRawLog(this.props, this.es, this.spark);
-      rr.execute();*/
-
+      rr.execute();
+      */
       endTime = System.currentTimeMillis();
 
       LOG.info("Web log preprocessing for logs dated {} complete. Time elapsed {} seconds.", anInputList, (endTime - startTime) / 1000);
